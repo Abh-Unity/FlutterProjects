@@ -1,0 +1,27 @@
+[
+    {
+        "id": "STAFF-001",
+        "name": "Aarav Sharma",
+        "department": "Management"
+    },
+    {
+        "id": "STAFF-002",
+        "name": "SitaKarki",
+        "department": "Administration"
+    },
+    {
+        "id": "STAFF-003",
+        "name": "Nabin Rai",
+        "department": "Inventory"
+    },
+    {
+        "id": "STAFF-004",
+        7"name": "Maya Thapa",
+        "department": "Purchase"
+    },
+    {
+        "id": "STAFF-005",
+        "name": "Bikash Gurung",
+        "department": "Customer Service"
+    }
+]
