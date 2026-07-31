@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:taskmanager/egfile.dart';
+import 'package:go_router/go_router.dart';
+import 'package:taskmanager/core/routes/app_router.dart';
 import 'package:taskmanager/modules/tasks/data/task_local_data.dart';
 import 'package:get_it/get_it.dart';
 
 final getit = GetIt.instance;
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   getit.registerFactory<Future<List<TaskModel>> Function()>(() => readjson);
+  setup();
+  await getit.allReady();
   runApp(MyApp());
 }
 
@@ -15,13 +19,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
         useMaterial3: true,
       ),
-      home: DashboardPage(),
+      routerConfig: myroute,
     );
   }
 }
@@ -75,14 +79,7 @@ class _DashboardPageState extends State<DashboardPage> {
               top: 360,
               child: GestureDetector(
                 onTap: () async {
-                  var tasklist = getit<Future<List<TaskModel>> Function()>();
-                  List<TaskModel> lists = await tasklist();
-
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => example(list: lists),
-                    ),
-                  );
+                  context.push('/example');
                 },
                 child: SizedBox(
                   width: 213,
@@ -106,4 +103,12 @@ class _DashboardPageState extends State<DashboardPage> {
       ),
     );
   }
+}
+
+void setup() {
+  getit.registerSingletonAsync<List<TaskModel>>(() async {
+    final tasks = getit<Future<List<TaskModel>> Function()>();
+    List<TaskModel> lists = await tasks();
+    return lists;
+  });
 }

@@ -17,7 +17,8 @@ class _exampleState extends State<example> {
       appBar: AppBar(title: Text("lists")),
       body: ListView.builder(
         itemCount: widget.list.length,
-        itemBuilder: (context, index) => Container(
+        itemBuilder: (context, index) => Card(
+          color: Colors.cyan,
           child: Column(
             children: [
               Text(widget.list[index].id.toString()),
