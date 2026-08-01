@@ -3,11 +3,16 @@ import 'package:go_router/go_router.dart';
 import 'package:taskmanager/core/routes/app_router.dart';
 import 'package:taskmanager/modules/tasks/data/task_local_data.dart';
 import 'package:get_it/get_it.dart';
+import 'package:hive_ce/hive_ce.dart';
+import 'package:hive_ce_flutter/hive_ce_flutter.dart';
 
 final getit = GetIt.instance;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+  final box = await Hive.openBox("mybox");
+  getit.registerSingleton(box);
   getit.registerFactory<Future<List<TaskModel>> Function()>(() => readjson);
   setup();
   await getit.allReady();
@@ -79,13 +84,13 @@ class _DashboardPageState extends State<DashboardPage> {
               top: 360,
               child: GestureDetector(
                 onTap: () async {
-                  context.push('/example');
+                  context.push('/dashboard');
                 },
                 child: SizedBox(
                   width: 213,
                   height: 54,
                   child: Text(
-                    'Load Tasks→ ',
+                    'Go To Dashboard ',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.black,

@@ -26,10 +26,8 @@ Future<List<TaskModel>> readjson() async {
     final List<TaskModel> tasks = respond
         .map((e) => TaskModel.fromJson(e as Map<String, dynamic>))
         .toList();
-    print("task length is: ${tasks.length}");
     return tasks;
   } catch (error) {
-    print(Text("ttask failed***********" + error.toString()));
     return [];
   }
 }

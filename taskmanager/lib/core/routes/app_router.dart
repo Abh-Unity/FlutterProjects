@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:taskmanager/dashboardpage.dart';
 import 'package:taskmanager/egfile.dart';
 import 'package:taskmanager/main.dart';
 import 'package:taskmanager/modules/tasks/data/task_local_data.dart';
@@ -8,10 +9,14 @@ final GoRouter myroute = GoRouter(
   routes: [
     GoRoute(path: '/', builder: (context, state) => DashboardPage()),
     GoRoute(
-      path: '/example',
+      path: '/dashboard',
       builder: (context, state) {
-        return example(list: list);
+        return dash(list: list);
       },
+    ),
+    GoRoute(
+      path: "/example",
+      builder: (context, state) => example(list: list),
     ),
   ],
 );
