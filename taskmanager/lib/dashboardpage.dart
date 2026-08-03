@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:hive_ce/hive.dart';
 import 'package:taskmanager/core/routes/app_router.dart';
 import 'package:taskmanager/modules/tasks/data/task_local_data.dart';
 import 'package:intl/intl.dart';
 import 'package:nepali_utils/nepali_utils.dart';
-
+import 'main.dart';
 import 'modules/dashboard/pages/settings_page.dart';
 
 class dash extends StatefulWidget {
@@ -100,7 +101,7 @@ class _dashState extends State<dash> {
                       left: 10,
                       top: 42,
                       child: Text(
-                        list.length.toString(),
+                        getit<Box<TaskModel>>().length.toString(),
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 40,

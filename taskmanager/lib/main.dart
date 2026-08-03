@@ -7,15 +7,28 @@ import 'package:hive_ce/hive_ce.dart';
 import 'package:hive_ce_flutter/hive_ce_flutter.dart';
 
 final getit = GetIt.instance;
+final newtask = 0;
+final inprogress = 0;
+final completed = 0;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
-  final box = await Hive.openBox("mybox");
-  getit.registerSingleton(box);
+  Hive.registerAdapter(TaskModelAdapter());
+  final Box<TaskModel> box = await Hive.openBox<TaskModel>("mybox");
+  final Box settingsbox = await Hive.openBox("loadsettings");
+  getit.registerSingleton<int>(newtask, instanceName: "newtask");
+  getit.registerSingleton<int>(inprogress, instanceName: "progresstask");
+  getit.registerSingleton<int>(completed, instanceName: "completedtask");
+  GetIt.instance.registerSingleton<Box<TaskModel>>(box);
   getit.registerFactory<Future<List<TaskModel>> Function()>(() => readjson);
   setup();
+  final hasrun = settingsbox.get("has initialized", defaultValue: false);
   await getit.allReady();
+  if (!hasrun) {
+    loadtask();
+    settingsbox.put("has initialized", true);
+  }
   runApp(MyApp());
 }
 
@@ -116,4 +129,18 @@ void setup() {
     List<TaskModel> lists = await tasks();
     return lists;
   });
+}
+
+void loadtask() {
+  final Box num = getit<Box<TaskModel>>();
+  final List<TaskModel> list = getit<List<TaskModel>>();
+  for (int i = 0; i < list.length; i++) {
+    num.add(
+      TaskModel(
+        id: list[i].id,
+        title: list[i].title,
+        description: list[i].description,
+      ),
+    );
+  }
 }

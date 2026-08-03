@@ -1,14 +1,25 @@
 import 'dart:convert';
-
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hive_ce/hive_ce.dart';
 
+part 'task_local_data.g.dart';
+
+@HiveType(typeId: 0)
 class TaskModel {
+  @HiveField(0)
   final String id;
+  @HiveField(1)
   final String title;
+  @HiveField(2)
   final String description;
+  final int? index;
 
-  TaskModel({required this.id, required this.title, required this.description});
+  TaskModel({
+    required this.id,
+    required this.title,
+    required this.description,
+    this.index,
+  });
 
   factory TaskModel.fromJson(Map<String, dynamic> data) {
     return TaskModel(
