@@ -28,7 +28,6 @@ class _dashState extends State<dash> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Dashboard", textAlign: TextAlign.center)),
       body: Container(
         width: 402,
         height: 874,

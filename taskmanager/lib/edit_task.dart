@@ -25,6 +25,7 @@ class _edittaskState extends State<edittask> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.deepPurple.shade300,
         title: Text("Edit Task"),
         actions: [
           IconButton(
@@ -116,7 +117,11 @@ class _edittaskState extends State<edittask> {
     );
     final index = widget.index;
     if (index == null) {
-      box.add(task);
+      if (idcontroller.text.isNotEmpty &&
+          descontroller.text.isNotEmpty &&
+          titlecontroller.text.isNotEmpty) {
+        box.add(task);
+      }
     } else {
       box.putAt(index, task);
     }

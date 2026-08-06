@@ -6,6 +6,8 @@ import 'package:taskmanager/edit_task.dart';
 import 'package:taskmanager/modules/tasks/data/task_local_data.dart';
 import 'package:hive_ce_flutter/hive_ce_flutter.dart';
 import 'main.dart';
+import 'package:nepali_utils/nepali_utils.dart';
+import 'package:intl/intl.dart';
 
 class example extends StatefulWidget {
   const example({super.key});
@@ -16,12 +18,16 @@ class example extends StatefulWidget {
 
 class _exampleState extends State<example> {
   final Box<TaskModel> box = getit<Box<TaskModel>>();
+  final String englishdate = DateFormat("yyyy-MM-dd").format(DateTime.now());
+  final String nepalidate = NepaliDateFormat(
+    "yyyy-MM-dd",
+  ).format(NepaliDateTime.now());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("lists"),
+        title: Text("Task Lists"),
         actions: [
           Text(
             "Total task:${box.length}",
@@ -47,7 +53,7 @@ class _exampleState extends State<example> {
                     box.deleteAt(index);
                     setState(() {});
                   },
-                  backgroundColor: Colors.green.shade50,
+                  backgroundColor: Colors.purple.shade200,
                   icon: Icons.delete,
                   label: 'Delete',
                 ),
@@ -62,25 +68,32 @@ class _exampleState extends State<example> {
                     context.push("/edit", extra: index);
                     loadfield(index);
                   },
-                  backgroundColor: Colors.green.shade50,
+                  backgroundColor: Colors.purple.shade200,
                   icon: Icons.edit,
                   label: "Edit",
                 ),
               ],
             ),
-            child: Card(
-              child: Column(
-                children: [
-                  Text(box.getAt(index)!.id, overflow: TextOverflow.ellipsis),
-                  Text(
-                    box.getAt(index)!.title,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    box.getAt(index)!.description,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+            child: Padding(
+              padding: const EdgeInsets.all(2.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  border: BoxBorder.all(color: Colors.black),
+                ),
+                child: Column(
+                  children: [
+                    Text(box.getAt(index)!.id, overflow: TextOverflow.ellipsis),
+                    Text(
+                      box.getAt(index)!.title,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      box.getAt(index)!.description,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
             ),
           );

@@ -1,7 +1,10 @@
 import 'package:go_router/go_router.dart';
+import 'package:taskmanager/Completed_page.dart';
 import 'package:taskmanager/dashboardpage.dart';
 import 'package:taskmanager/edit_task.dart';
 import 'package:taskmanager/egfile.dart';
+import 'package:taskmanager/settings.dart';
+import 'package:taskmanager/in-progress_page.dart';
 import 'package:taskmanager/main.dart';
 import 'package:taskmanager/modules/tasks/data/task_local_data.dart';
 
@@ -23,5 +26,8 @@ final GoRouter myroute = GoRouter(
         return edittask(index: index);
       },
     ),
+    GoRoute(path: '/completed', builder: (context, state) => Completepg()),
+    GoRoute(path: '/inprogress', builder: (context, state) => inprogresspg()),
+    GoRoute(path: '/settings', builder: (context, state) => settings()),
   ],
 );

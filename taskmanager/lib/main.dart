@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:taskmanager/core/routes/app_router.dart';
+import 'package:taskmanager/dashboardpage.dart';
+import 'package:taskmanager/egfile.dart';
 import 'package:taskmanager/modules/tasks/data/task_local_data.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_ce/hive_ce.dart';
@@ -40,7 +42,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.pink.shade300),
         useMaterial3: true,
       ),
       routerConfig: myroute,
@@ -61,64 +63,42 @@ class _DashboardPageState extends State<DashboardPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Task Manager"),
-        backgroundColor: Color(0xFF17152D),
+        backgroundColor: Colors.deepPurple.shade300,
         foregroundColor: Colors.white,
       ),
-      body: Container(
-        width: 402,
-        height: 874,
-        clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment(0.50, -0.00),
-            end: Alignment(0.50, 1.00),
-            colors: [const Color(0xFF17152D), const Color(0xFF532BDC)],
+      drawer: Drawer(
+        child: Container(
+          color: Colors.deepPurple.shade300,
+          child: ListView(
+            children: [
+              DrawerHeader(
+                child: Center(
+                  child: Text("Options", style: TextStyle(fontSize: 40)),
+                ),
+              ),
+              ListTile(
+                title: Text("Completed Tasks"),
+                onTap: () {
+                  context.push("/completed");
+                },
+              ),
+              ListTile(
+                title: Text("In-Progress Tasks"),
+                onTap: () {
+                  context.push("/inprogress");
+                },
+              ),
+              ListTile(
+                title: Text("Settings"),
+                onTap: () {
+                  context.push("settings");
+                },
+              ),
+            ],
           ),
         ),
-        child: Stack(
-          children: [
-            Positioned(
-              left: 91,
-              top: 349,
-              child: Container(
-                width: 220,
-                height: 54,
-                decoration: ShapeDecoration(
-                  color: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    side: BorderSide(width: 1),
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              left: 98,
-              top: 360,
-              child: GestureDetector(
-                onTap: () async {
-                  context.push('/dashboard');
-                },
-                child: SizedBox(
-                  width: 213,
-                  height: 54,
-                  child: Text(
-                    'Go To Dashboard ',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 20,
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -0.60,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
+      body: example(),
     );
   }
 }
