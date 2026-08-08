@@ -2,10 +2,12 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:hive_ce/hive_ce.dart';
 
+import '../../../main.dart';
+
 part 'task_local_data.g.dart';
 
 @HiveType(typeId: 0)
-class TaskModel {
+class TaskModel extends HiveObject {
   @HiveField(0)
   final String id;
   @HiveField(1)
@@ -13,12 +15,18 @@ class TaskModel {
   @HiveField(2)
   final String description;
   final int? index;
+  @HiveField(3)
+  bool iscomplete;
+  @HiveField(4)
+  bool ispending;
 
   TaskModel({
     required this.id,
     required this.title,
     required this.description,
     this.index,
+    this.iscomplete = false,
+    this.ispending = false,
   });
 
   factory TaskModel.fromJson(Map<String, dynamic> data) {
@@ -26,6 +34,8 @@ class TaskModel {
       id: data['id'] as String,
       title: data['title'] as String,
       description: data['description'] as String,
+      iscomplete: false,
+      ispending: false,
     );
   }
 }

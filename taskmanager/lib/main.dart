@@ -9,9 +9,8 @@ import 'package:hive_ce/hive_ce.dart';
 import 'package:hive_ce_flutter/hive_ce_flutter.dart';
 
 final getit = GetIt.instance;
-final newtask = 0;
-final inprogress = 0;
-final completed = 0;
+final inprogress = false;
+final completed = false;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,9 +18,8 @@ void main() async {
   Hive.registerAdapter(TaskModelAdapter());
   final Box<TaskModel> box = await Hive.openBox<TaskModel>("mybox");
   final Box settingsbox = await Hive.openBox("loadsettings");
-  getit.registerSingleton<int>(newtask, instanceName: "newtask");
-  getit.registerSingleton<int>(inprogress, instanceName: "progresstask");
-  getit.registerSingleton<int>(completed, instanceName: "completedtask");
+  getit.registerSingleton<bool>(inprogress, instanceName: "ispending");
+  getit.registerSingleton<bool>(completed, instanceName: "iscompleted");
   GetIt.instance.registerSingleton<Box<TaskModel>>(box);
   getit.registerFactory<Future<List<TaskModel>> Function()>(() => readjson);
   setup();

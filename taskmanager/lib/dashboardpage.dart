@@ -1,393 +1,339 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:taskmanager/core/routes/app_router.dart';
 import 'package:taskmanager/modules/tasks/data/task_local_data.dart';
-import 'package:intl/intl.dart';
-import 'package:nepali_utils/nepali_utils.dart';
 import 'main.dart';
-import 'modules/dashboard/pages/settings_page.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 class dash extends StatefulWidget {
-  final List<TaskModel> list;
-
-  const dash({super.key, required this.list});
+  const dash({super.key});
 
   @override
   State<dash> createState() => _dashState();
 }
 
 class _dashState extends State<dash> {
-  String datetime = DateFormat("yyyy-MM-dd").format(DateTime.now());
-  String nepaliDatetime = NepaliDateFormat(
-    "yyyy-MM-dd",
-  ).format(NepaliDateTime.now());
-  final List<Widget> pages = [dash(list: list), settings()];
-
   @override
   Widget build(BuildContext context) {
+    final box = getit<Box<TaskModel>>();
+    final total = box.length;
+    int completed = box.values.where((t) => t.iscomplete).length;
+    int pending = box.values.where((t) => t.ispending).length;
     return Scaffold(
+      appBar: AppBar(
+        title: Text("Dashboard"),
+        elevation: 3,
+        backgroundColor: Color(0xffecd6d6),
+      ),
+      drawer: Drawer(
+        child: Container(
+          color: Colors.deepPurple.shade300,
+          child: ListView(
+            children: [
+              DrawerHeader(
+                child: Center(
+                  child: Text("Options", style: TextStyle(fontSize: 40)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
       body: Container(
         width: 402,
         height: 874,
         clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(color: const Color(0xFFFFF3F3)),
+        decoration: BoxDecoration(color: const Color(0xFFF5EDED)),
         child: Stack(
           children: [
             Positioned(
-              left: 23,
-              top: 17,
+              left: 11,
+              top: 56,
+              child: GestureDetector(
+                onTap: () {
+                  context.push("/example");
+                },
+                child: Container(
+                  width: 190,
+                  height: 165,
+                  decoration: ShapeDecoration(
+                    color: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(width: 1),
+                      borderRadius: BorderRadius.circular(26),
+                    ),
+                    shadows: [
+                      BoxShadow(
+                        color: Color(0x3F000000),
+                        blurRadius: 4,
+                        offset: Offset(0, 4),
+                        spreadRadius: 0,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              left: 53,
+              top: 89,
               child: Text(
-                'Date: ' +
-                    datetime.toString() +
-                    " | " +
-                    "Nepali: " +
-                    nepaliDatetime.toString(),
-                textAlign: TextAlign.center,
+                'Total Tasks',
                 style: TextStyle(
                   color: Colors.black,
                   fontSize: 20,
                   fontFamily: 'Inter',
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.60,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
             ),
             Positioned(
-              left: 20,
-              top: 75,
+              left: 226,
+              top: 71,
               child: Text(
-                'Overview',
-                textAlign: TextAlign.center,
+                'Total Tasks',
                 style: TextStyle(
                   color: Colors.black,
                   fontSize: 20,
                   fontFamily: 'Inter',
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.60,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
             ),
             Positioned(
-              left: 14,
-              top: 108,
+              left: 113,
+              top: 230,
+              child: GestureDetector(
+                onTap: () {
+                  context.push("/completed");
+                },
+                child: Container(
+                  width: 191,
+                  height: 166,
+                  decoration: ShapeDecoration(
+                    color: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(width: 1),
+                      borderRadius: BorderRadius.circular(26),
+                    ),
+                    shadows: [
+                      BoxShadow(
+                        color: Color(0x3F000000),
+                        blurRadius: 4,
+                        offset: Offset(0, 4),
+                        spreadRadius: 0,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              left: 209,
+              top: 56,
+              child: GestureDetector(
+                onTap: () {
+                  context.push("/inprogress");
+                },
+                child: Container(
+                  width: 190,
+                  height: 165,
+                  decoration: ShapeDecoration(
+                    color: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(width: 1),
+                      borderRadius: BorderRadius.circular(26),
+                    ),
+                    shadows: [
+                      BoxShadow(
+                        color: Color(0x3F000000),
+                        blurRadius: 4,
+                        offset: Offset(0, 4),
+                        spreadRadius: 0,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              left: 13,
+              top: 453,
               child: Container(
-                width: 175,
-                height: 111,
-                child: Stack(
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        context.push("/example");
-                      },
-                      child: Positioned(
-                        left: 0,
-                        top: 0,
-                        child: Container(
-                          width: 175,
-                          height: 111,
-                          decoration: ShapeDecoration(
-                            color: const Color(0xFF2A92EB),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(17),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      left: 10,
-                      top: 42,
-                      child: Text(
-                        getit<Box<TaskModel>>().length.toString(),
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 40,
-                          fontFamily: 'Inter',
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      left: 10,
-                      top: 9,
-                      child: Text(
-                        'Total Tasks',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontFamily: 'Inter',
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                width: 381,
+                height: 318,
+                decoration: ShapeDecoration(
+                  color: Colors.white,
+                  shape: RoundedRectangleBorder(side: BorderSide(width: 1)),
+                  shadows: [
+                    BoxShadow(
+                      color: Color(0x3F000000),
+                      blurRadius: 4,
+                      offset: Offset(0, 4),
+                      spreadRadius: 0,
                     ),
                   ],
                 ),
+                child: charts(),
               ),
             ),
             Positioned(
-              left: 220,
-              top: 242,
-              child: Container(
-                width: 175,
-                height: 111,
-                child: Stack(
-                  children: [
-                    Positioned(
-                      left: 0,
-                      top: 0,
-                      child: Container(
-                        width: 175,
-                        height: 111,
-                        decoration: ShapeDecoration(
-                          color: const Color(0xFF50A852),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(17),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      left: 19,
-                      top: 38,
-                      child: Text(
-                        '10',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 40,
-                          fontFamily: 'Inter',
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      left: 12,
-                      top: 14,
-                      child: Text(
-                        'Completed',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontFamily: 'Inter',
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Positioned(
-              left: 14,
-              top: 242,
-              child: Container(
-                width: 175,
-                height: 111,
-                child: Stack(
-                  children: [
-                    Positioned(
-                      left: 0,
-                      top: 0,
-                      child: Container(
-                        width: 175,
-                        height: 111,
-                        decoration: ShapeDecoration(
-                          color: const Color(0xFF663FB4),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(17),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      left: 10,
-                      top: 38,
-                      child: Text(
-                        '10',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 40,
-                          fontFamily: 'Inter',
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      left: 10,
-                      top: 14,
-                      child: Text(
-                        'In-Progress',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontFamily: 'Inter',
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Positioned(
-              left: 220,
-              top: 108,
-              child: Container(
-                width: 175,
-                height: 111,
-                child: Stack(
-                  children: [
-                    Positioned(
-                      left: 0,
-                      top: 0,
-                      child: Container(
-                        width: 175,
-                        height: 111,
-                        decoration: ShapeDecoration(
-                          color: const Color(0xFFFC910F),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(17),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      left: 19,
-                      top: 42,
-                      child: Text(
-                        '10',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 40,
-                          fontFamily: 'Inter',
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      left: 12,
-                      top: 9,
-                      child: Text(
-                        'New Tasks',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontFamily: 'Inter',
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Positioned(
-              left: 14,
-              top: 395,
+              left: 263,
+              top: 89,
               child: Text(
-                'Recent Task Images',
+                'Pending ',
                 style: TextStyle(
                   color: Colors.black,
                   fontSize: 20,
                   fontFamily: 'Inter',
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
             ),
             Positioned(
-              left: 14,
-              top: 453,
-              child: Container(
-                width: 116,
-                height: 220,
-                decoration: ShapeDecoration(
-                  image: DecorationImage(
-                    image: NetworkImage(""),
-                    fit: BoxFit.cover,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(24),
-                  ),
+              left: 159,
+              top: 260,
+              child: Text(
+                'Completed',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 20,
+                  fontFamily: 'Inter',
+                  fontWeight: FontWeight.w400,
                 ),
               ),
             ),
             Positioned(
-              left: 139,
-              top: 453,
-              child: Container(
-                width: 116,
-                height: 220,
-                decoration: ShapeDecoration(
-                  image: DecorationImage(
-                    image: NetworkImage(""),
-                    fit: BoxFit.cover,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(24),
+              left: 82,
+              top: 143,
+              child: SizedBox(
+                width: 48,
+                height: 44,
+                child: Text(
+                  box.length.toString(),
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 36,
+                    fontFamily: 'Inter',
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
               ),
             ),
             Positioned(
-              left: 264,
-              top: 453,
-              child: Container(
-                width: 116,
-                height: 220,
-                decoration: ShapeDecoration(
-                  image: DecorationImage(
-                    image: NetworkImage(""),
-                    fit: BoxFit.cover,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(24),
+              left: 285,
+              top: 143,
+              child: SizedBox(
+                width: 48,
+                height: 44,
+                child: Text(
+                  pending.toString(),
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 36,
+                    fontFamily: 'Inter',
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
               ),
             ),
             Positioned(
-              left: 389,
-              top: 453,
-              child: Container(
-                width: 116,
-                height: 220,
-                decoration: ShapeDecoration(
-                  image: DecorationImage(
-                    image: NetworkImage(""),
-                    fit: BoxFit.cover,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(24),
+              left: 190,
+              top: 319,
+              child: SizedBox(
+                width: 48,
+                height: 44,
+                child: Text(
+                  completed.toString(),
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 36,
+                    fontFamily: 'Inter',
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
+              ),
+            ),
+            Positioned(
+              left: 161,
+              top: 588,
+              child: Text(
+                "${task.toStringAsFixed(1)}%",
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 40,
+                  fontFamily: 'Inter',
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
+            Positioned(
+              left: 125,
+              top: 424,
+              child: Row(
+                children: [
+                  Container(
+                    width: 12,
+                    height: 12,
+                    decoration: const BoxDecoration(
+                      color: Colors.deepPurple,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Text("Complete"),
+
+                  const SizedBox(width: 20),
+
+                  Container(
+                    width: 12,
+                    height: 12,
+                    decoration: const BoxDecoration(
+                      color: Colors.grey,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Text("Incomplete"),
+                ],
               ),
             ),
           ],
         ),
       ),
-      bottomNavigationBar: Container(
-        color: Color(0xFFFFF4F4),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
-          child: GNav(
-            onTabChange: (index) {
-              pages[index];
-              setState(() {});
-            },
-            color: Colors.black,
-            backgroundColor: Color(0xFFFFF4F4),
-            activeColor: Colors.black,
-            tabBackgroundColor: Color(0xFFFFD7E1),
-            padding: EdgeInsetsGeometry.all(16),
-            gap: 8,
-            iconSize: 40,
-            tabs: [
-              GButton(icon: Icons.home, text: "Dashboard"),
-              GButton(icon: Icons.settings, text: "Settings"),
-            ],
+    );
+  }
+
+  late double task;
+
+  Widget charts() {
+    final Box totalbox = getit<Box<TaskModel>>();
+    final int comtask = totalbox.values.where((t) => t.iscomplete).length;
+    final int total = getit<Box<TaskModel>>().length;
+    int lefttask = total - comtask;
+    task = comtask / (comtask + lefttask) * 100;
+    return PieChart(
+      PieChartData(
+        sections: [
+          PieChartSectionData(
+            value: comtask.toDouble(),
+            title: "",
+            color: Colors.deepPurple,
+            titleStyle: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
+          PieChartSectionData(
+            value: lefttask.toDouble(),
+            title: "",
+            color: Colors.grey,
+            titleStyle: TextStyle(
+              color: Colors.deepPurple,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
       ),
     );
   }

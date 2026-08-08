@@ -33,7 +33,35 @@ class _edittaskState extends State<edittask> {
               savetask();
               context.pop();
             },
-            icon: Icon(Icons.done),
+            icon: Text("Save"),
+          ),
+          IconButton(
+            onPressed: () {
+              final index = widget.index;
+              if (widget.index != null) {
+                final Box<TaskModel> box = getit<Box<TaskModel>>();
+                final task = box.getAt(index!)!;
+                task.iscomplete = true;
+                task.ispending = false;
+                task.save();
+              }
+              context.pop();
+            },
+            icon: Text("Complete"),
+          ),
+          IconButton(
+            onPressed: () {
+              final index = widget.index;
+              if (widget.index != null) {
+                final Box<TaskModel> box = getit<Box<TaskModel>>();
+                final task = box.getAt(index!)!;
+                task.ispending = true;
+                task.iscomplete = false;
+                task.save();
+              }
+              context.pop();
+            },
+            icon: Text("is pending"),
           ),
         ],
       ),

@@ -11,11 +11,11 @@ import 'package:taskmanager/modules/tasks/data/task_local_data.dart';
 List<TaskModel> list = getit<List<TaskModel>>();
 final GoRouter myroute = GoRouter(
   routes: [
-    GoRoute(path: '/', builder: (context, state) => DashboardPage()),
+    GoRoute(path: '/', builder: (context, state) => dash()),
     GoRoute(
       path: '/dashboard',
       builder: (context, state) {
-        return dash(list: list);
+        return dash();
       },
     ),
     GoRoute(path: "/example", builder: (context, state) => example()),
