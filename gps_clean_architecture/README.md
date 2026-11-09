@@ -2,14 +2,13 @@ GPS_CLEAN_ARCHITECTURE:
 
 
 <p align="center">
-  <img src="gps_clean_architecture_Screenshots/Picsart_26-11-09_14-23-01-834.jpg" width="250">
-  <img src="gps_clean_architecture_Screenshots/Picsart_26-11-09_14-23-50-753.jpg" width="250">
-  <img src="gps_clean_architecture_Screenshots/Screenshot_2026-11-09-14-19-56-848_com.miui.gallery.jpg" width="250">
-  <img src="gps_clean_architecture_Screenshots/Screenshot_2026-11-09-14-20-01-030_com.miui.gallery.jpg" width="250">
-  <img src="gps_clean_architecture_Screenshots/Screenshot_2026-11-09-14-20-03-728_com.miui.gallery.jpg" width="250">
-  <img src="gps_clean_architecture_Screenshots/Screenshot_2026-11-09-14-20-13-692_com.miui.gallery.jpg" width="250">
+  <img src="../gps_clean_architecture_Screenshots/Picsart_26-11-09_14-23-01-834.jpg" width="250">
+  <img src="../gps_clean_architecture_Screenshots/Picsart_26-11-09_14-23-50-753.jpg" width="250">
+  <img src="../gps_clean_architecture_Screenshots/Screenshot_2026-11-09-14-19-56-848_com.miui.gallery.jpg" width="250">
+  <img src="../gps_clean_architecture_Screenshots/Screenshot_2026-11-09-14-20-01-030_com.miui.gallery.jpg" width="250">
+  <img src="../gps_clean_architecture_Screenshots/Screenshot_2026-11-09-14-20-03-728_com.miui.gallery.jpg" width="250">
+  <img src="../gps_clean_architecture_Screenshots/Screenshot_2026-11-09-14-20-13-692_com.miui.gallery.jpg" width="250">
 </p>
-
 
 
 THIS README CONSISTS OF:
