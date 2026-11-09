@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -20,7 +21,11 @@ type locationData struct {
 }
 
 func main() {
-	databaseurl := "postgres://postgres:Tequiero1!@localhost:5432/postgres"
+	databaseurl := os.Getenv("DATABASE_URL")
+	if databaseurl == "" {
+		databaseurl = "postgres://postgres:Tequiero1!@localhost:5432/postgres"
+
+	}
 
 	config, err := pgxpool.ParseConfig(databaseurl)
 	if err != nil {
