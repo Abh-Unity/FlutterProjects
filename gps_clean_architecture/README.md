@@ -209,6 +209,10 @@ when retrieving data from database,i checked the deviceid retrieved from querypa
 
 since the device id is ultimately stored into the device itself and no server side validation is done,although its highly unlikely to match it since i am using uuid(universally unique identifiers v4),sophisticated users can breach into other people's data by changing their deviceid(uuid) to another person's uuid.
 
+you can find my throw away prototype which i created to learn about operating system and geolocator here:
+
+https://github.com/Abh-Unity/FlutterProjects/tree/main/gps
+
 
 
 
