@@ -1,5 +1,6 @@
-GPS_CLEAN_ARCHITECTURE:
+# GPS Tracker
 
+A GPS tracking app built with Flutter and a Go backend. It reads the device's location (including in the background), stores it locally with Hive, sends it to a Go server backed by Postgres on Supabase, and shows both the current reading and the location history.
 
 <p align="center">
   <img src="../gps_clean_architecture_Screenshots/Picsart_26-11-09_14-23-01-834.jpg" width="250">
@@ -10,216 +11,148 @@ GPS_CLEAN_ARCHITECTURE:
   <img src="../gps_clean_architecture_Screenshots/Screenshot_2026-11-09-14-20-13-692_com.miui.gallery.jpg" width="250">
 </p>
 
+This README has two parts:
 
-THIS README CONSISTS OF:
+1. [Frontend](#1-frontend)
+2. [Backend](#2-backend)
 
-1.)FRONTEND
-2.)BACKEND
+---
 
+## 1. Frontend
 
+### Layers
 
-1.)FRONTEND:
+UI, State Management, User Repository, Data Class, Service Class
 
-The layers defined are:
+### Flow of data
 
-#UI,
-#STATE MANAGEMENT,
-#USER REPOSITORY,
-#DATA CLASS,
-#SERVICE CLASS
+```
+Service (DI through GetIt)
+  -> User Repository (calls Data Class)
+  -> Data Class (filters data and converts it into user-defined data types)
+  -> State Management (gets data through User Repository)
+  -> UI (data is displayed)
+```
 
-THE FLOW OF DATA HAPPENS LIKE:
+### Services used
 
-##SERVICE(DI THROUGH GET IT)-->##USER REPOSITORY(CALLS DATA CLASS)-->##DATA CLASS(FILTERS DATA AND CONVERTS THEM INTO USER DEFINED DATA TYPES)-->##STATEMANAGEMENT(GETS DATA THROUGH USER REPOSITORY)-->##UI(DATA IS DISPLAYED.)
+**Frontend**
+- **Flutter** - framework for Android/iOS support (I haven't accounted for iOS because I focused heavily on Android while learning)
+- **Hive** - persistent data
+- **GetIt** - service locator for dependency injection
+- **BLoC** - state management
+- **Figma** - simple, minimalistic UI design
+- **Dio** - talks to the server to post and get data
 
+**Backend**
+- **Golang** - fast, light backend server
+- **PostgreSQL** - used for local testing
+- **Supabase** - hosts the PostgreSQL database and handles the data
+- **Render** - deploys the backend
 
+### What I learned (Android and OS behaviour)
 
+I released the prototype of this project a few weeks ago. While building it I learnt how the operating system behaves, and why I needed `WAKE_LOCK` in the Android manifest, foreground services, and foreground location services.
 
+- **Foreground services** let the app run in the background. They show a visible, persistent notification, because of which the OS doesn't kill the app when it is minimized.
+- **Wake lock** prevents the CPU from sleeping, which stops the OS from killing the app completely. My app doesn't use it right now, but I haven't removed it from the Android manifest, so it's already there if I decide to provide an update that needs it.
 
-#SERVICES USED:
+### Permissions
 
-#FRONTEND:
+I used `permission_handler` to handle permissions. The permissions requested are:
 
-flutter - framework for android/ios support(i havent accounted for ios cause i heavily focused on android os when learning.)
-Hive - for persistent data
-Getit - as a service locator for dependency injection
-Statemanagement-Bloc
-Figma - for a simple and minimalistic UI design
-Dio- to talk with server to post and get the data.
+- **Location when in use** - for when the app is open
+- **Location always** - for when the app is in the background
+- **Notification** - for foreground services to show the persistent notification
 
+### Roles of each layer
 
-#Backend:
+The app is divided into several layers according to their roles.
 
-Golang - used to create a fast and light backend server
-Postgresql - used in testing
-Render - to deploy the backend
-Supabase - to handle the data
+#### UI
 
+Files: `go_router.dart`, `homepage.dart`, `locationhistory.dart`, `longitudecontainer.dart`, `main.dart`, `recordcontainer.dart`
 
-Resources request:
+This is where the UI buttons, list view builder, etc. sit. It consists of the things the user can interact with.
 
-i had released the prototype of the project a few weeks ago in which i learnt how the operating system behaves,why i needed to put wake_lock in android manifest,foreground services,foreground location services and what i learnt is wakelock prevents the operating system from killing the app completely and foreground services are for the app to run in the background....
+- **`go_router.dart`** - consists of GoRouter with routes. It handles navigation within the app in a clean, self-contained way so that debugging is easier.
+- **`homepage.dart`** - consists of the UI elements and a BlocBuilder with a floating button. It is responsible for displaying the provided data and sending triggers (activating events) to build the UI. This file knows nothing about where the data comes from; its main job is just to display the incoming data.
+- **`locationhistory.dart`** - very similar to `homepage.dart`, but instead of showing the current reading it shows the history of data given to it.
+- **`longitudecontainer.dart`** - the extension to `homepage.dart`. It consists of the container widget where all the incoming data is placed in its respective position. The UI is separated this way to make debugging easier, so that the homepage, where the actual data arrives from the pipeline, stays clean. Since I have `longitudecontainer`, if I need to change something in the container I only edit it once and all instances of the container are altered.
+- **`main.dart`** - the starting point of the program, where Hive and dependencies are initialized. `BlocProvider` is also initialized here.
+- **`recordcontainer.dart`** - same as `longitudecontainer.dart`, but for `locationhistory.dart`.
 
-foreground services lets me to provide a visible persistent notification bar due to which the os doesnt kill my app when its minimized.
+#### Services / dependencies
 
-wakelock is a method to prevent cpu from sleeping.i have not removed it even though my app doesnt utilize it right now cause in future if i decide to provide the update for it i know its still in the android manifest.
+Files: `hivesetup.dart`, `locator.dart`, `statemanagement.dart`, `talktoserver.dart`
 
-#Permissions:
+Services are the files that consist of the things that need to be accessed throughout the app's lifetime. They perform some action and provide output. They do not change with the data they process; they are the non-changing entities and are unaffected by the data they process.
 
-I used permission handler to handle the processes:
+- **`hivesetup.dart`** - initializes and opens Hive boxes to store the data.
+- **`hive_registrar.g.dart`** - a type adapter file. Hive only knows how to store primitive data types. If the user wants to store a user-defined data type, a type adapter must be created so that Hive knows how to store it and how to provide it back when needed.
+- **`locator.dart`** - where the singleton instances of the services are created. Since the app needs them to function, singleton / lazy singleton instances are defined so that allocation/deallocation and memory leaks can be prevented. The global single instances are kept so that the app can request a service whenever and from wherever it needs it.
+- **`statemanagement.dart`** - the true brain of the frontend. This is where the dormant services are awakened/triggered. It dictates which services run at a given time according to the events triggered, and it acts on the triggers provided by the UI to initiate the respective events.
+- **`geolocator_setup.dart`** - used to find out the currently allowed permissions and to request permissions from the user with `.request()`. It returns `true` if location always is granted, `false` if location always is denied but location when in use is allowed, and `null` when location when in use is denied.
 
-The permissions requested are:
-location when in use - for when the app is open
-location always - for when the app is in background
-notification - for foregroundservices to show the persistent notification
+#### Data
 
-#roles of each layer:
+Files: `hold_data.dart`, `dataRepository.dart`, `deviceinfo.dart`, `geolocator_Readings.dart`, `hold_Data.g.dart`, `retrieveddataclass.dart`
 
-The app is divided into several layers according to their respective roles:
-UI:
-go_router.dart
-homepage.dart
-locationhistory.dart
-longitudecontainer.dart
-main.dart
-recordcontainer.dart
+This is the layer concerned with data and nothing else.
 
-this is where the ui buttons,list view builder etc sit..it is basically consist of the things user can interact with.
+- **`hold_data.dart`** - converts the raw, unstructured data (or collection of data) into structured data consisting of fields such as longitude, latitude, altitude, etc. This helps with type safety and also filters the incoming data by keeping only the data returned by its factory function.
+- **`dataRepository.dart`** - where all the logic related to data happens. The factory function of the `hold_data` class is called here, and the function that stores the incoming data from Geolocator is defined here. This file decides where the data is fetched from and where it goes. It is responsible for caching the data into the Hive box, sending it to the backend, and retrieving that data.
+- **`deviceinfo.dart`** - where a unique ID for the device is created. It helps uniquely identify the data when we need to retrieve it from the backend. It is created only once.
+- **`geolocator_Readings.dart`** - where `LocationSettings` is created. It is used to create a stream getter provided by Geolocator, which runs only when invoked. This getter is sent to the user repository for further operation. I could send it to the BLoC too, but that would violate clean architecture: if anything were to be deprecated or change, my whole BLoC would have to be debugged and potentially the UI too. In clean architecture, services are always injected rather than passed, and services related to data are always injected into the user repository.
+- **`hold_Data.g.dart`** - defines how to store the incoming `Position` object as distinct fields like longitude, altitude, latitude, etc., and return them when needed.
+- **`retrieveddataclass.dart`** - same as `hold_data.dart`, but rather than reading the `Position` object from GPS, it reads the data from the backend and converts it into a user-defined data type called `retrieved_data`.
 
-go_router.dart:
+---
 
-this file consists of go_router with routes this handles the navigation within the app in a clean,self contained way such that the debugging is easier.
+## 2. Backend
 
+### Services used
 
-homepage.dart:
+- **Golang** - to design the backend server
+- **PostgreSQL** - to test the backend server locally
+- **Supabase** - to host the PostgreSQL database
+- **Render** - to deploy the backend server
 
-this file consists of the ui elements and bloc builder with floating button which is responsible for desplaying the provided data and send triggers(activate events) to build the ui.this file knows nothing about where the data comes from.its main job is just to display the incoming data.
+### Why Go
 
-locationhistory.dart
+Go is a very fast language that compiles into a binary. Since everything is converted into machine code at once, it is very fast compared to interpreted languages like Python. It has built-in libraries like `os`, `net/http` and `encoding/json`, so I felt it was a great starting point for me to learn backend.
 
-this file very similar to homepage.dart but instead of showing the current reading it shows the histroy of data given to it.
+### Backend server design
 
-longitudecontainer.dart
+- I created a struct consisting of the fields, with JSON tags, that saves the incoming data from Dio (sent using the `toJson` function in the app).
+- **`main()`**: I retrieve the environment variable `DATABASE_URL` set on Render. If the environment variable is absent, I made a provision to connect to my local Postgres as a last option.
+- I parse that string, and Go returns a config with the fields broken down from the database URL into a Go-readable struct (password, database name, etc.).
+- With that config, I create a connection pool to the database and ping the database to check whether it is online.
+- `defer` runs a function when its parent function is about to end. I make sure to close the connection between the database and the backend whenever an error occurs before reaching `ListenAndServe`. (Not having `defer dbpool.Close()` wouldn't matter here, because no function abruptly closes the backend after the pool has been opened.)
+- The backend checks that the incoming request for each path matches the one defined in the backend; if not, it returns an error.
+- **Saving data:** it saves the incoming coordinates from the frontend and inserts them into the database. `r.Context()` is used so that the transaction of data is atomic.
+- **Retrieving data:** the backend reads the `deviceid` from the query parameter sent by Dio, and matches the rows to it. There can be multiple records, so I map them into the struct, create a slice of type `LocationData`, and send it for a GET request.
 
-this file is the extension to homepage.dart it consists of the container widget where all the incoming data are placed in their respective position.the ui are separated this way to make the debugging easier so that the homepage where the actual data arrives from pipeline is clean,since i have longitudecontainer,if i need to change something in the container,i can just edit once and the instances of the container will all be altered.
+### Known limitations
 
-main.dart:
-this is the starting point of the program where hive and dependencies are initialized,blocprovider is also initialized here.
+The device ID is stored on the device itself and no server-side validation is done. Although a match is highly unlikely because I use UUIDs (universally unique identifiers, v4), sophisticated users could access other people's data by changing their device ID (UUID) to another person's UUID.
 
-recordcontainer.dart
+---
 
-it is same as longitudecontainer but for locationhistory.dart
+## Running the project
 
-#Services/dependencies:
-services are those files that consist of the things that need to be accessed throughout the app's lifetime.they are the ones that perform some action and provide output.they do not change by the data they process.they are the non changing entities and are unaffected by the data they process.
+<!-- Fill in the exact steps that work on your machine. -->
 
-hivesetup.dart
-locator.dart
-statemanagement.dart
-talktoserver.dart
+**Backend**
+1. Set the `DATABASE_URL` environment variable to your Postgres connection string.
+2. Run the server with `go run .` from the backend folder.
 
-hivesetup.dart:
-it is used to initialize and open hive boxes to store the data.
+**App**
+1. `flutter pub get`
+2. Set the backend URL used by Dio.
+3. `flutter run`
 
-hive_registrar.g.dart:
-it is a typeadapter file.hive only knows how to store the primitive datatypes.if user wants to store the userdefined datatype then a typeadapter must be created in order for the hive to know how to store the file and how to provide it to the user in case they need it.
+## Earlier prototype
 
-locator.dart:
-this is where the singleton instances of the services are created.since the app needs them to function,a singleton/lazysingleton instances of them are defined so that allocation/deallocation,memory leak can be prevented.the global single instances are kept so that the app can request the service whenever and from wherever it needs them.
-
-statemanagement.dart:
-the true brain of the frontend.this is where the dormant services are awakened/triggered.this is the file that dictates which services run at a given time according to its triggered events.this file acts on the triggers provided by the ui to initiate the respective events.
-
-geolocator_setup.dart:
-this file is used to know the current allowed permissions and request permissions with the user with the help of.request(). and returns true if the location always is granted,false if the location always is denied but location when in use is allowed,and returns null when the location when in use is denied.
-
-data:
-
-it is the layer concerned with data and nothing else
-
-hold_data.dart
-dataRepository.dart
-deviceinfo.dart
-geolocator_Readings.dart
-hold_Data.g.dart
-retrieveddataclass.dart
-
-hold_data.dart:
-
-the purpose of this file is to  convert the raw unstructured data/collection of data into structured data consisting of fields such as longitude,latitude,altitude etc.which helps in type safety and also filters the incoming data by keeping only the data returned by its factory function.
-
-datarespository.dart:
-
-this is the file where all the logic related to data happens.this is where the factory function of the hold_data class is called.this is where the function is defined that stores the incoming data from geolocator.this file is responsible to decide where the data is fetched from and where the data goes.it is responsible to cache the data into box and send it to the backend and as well as retrieval of that data happens here.
-
-deviceinfo.dart
-
-this is where unique id with respect to the device is created which helps uniquely identifying the data when we need to retrieve it from backend.this is created only once.
-
-geolocator_readings:
-
-here locationsettings is created.it is used to create a stream getter provided by geolocator which runs only when invoked.this getter is sent to the userrepository for further operation.i could send it to bloc too but it would violate the clean architecture because if anything were to depreciate or change my whole bloc would have to be debugged and potentially the ui too.in clean architecture,services are always injected rather than passed and the services related to data are always injected into userrepository.
-
-hold_Data.g.dart:
-
-this file is responsible to define how to store the incoming Position object into distinct fields like longitude,altitude,latitude etc and return them when needed.
-
-retrieveddataclass.dart:
-
-this class is just as same as hold_data.dart file but rather than reading the positionbject from gps,it reads and converts them into user defined datatype called retrieved_data.
-
-
-2.)BACKEND
-
-Services used:
-
-#Golang - to design backend server.
-#Postgresql - to test my backend server locally.
-#Supabase - to deploy my postgresql.
-#Render - to deploy my backend server.
-
-
-golang:
-it is a superfast language where it is compiled into binary.since it is all converted into machine code at the same time it is blazingly fast if compared to interpreted languages like python which is relatively slow.since it consists of built in libraries like os,net/http.encoding/json i felt like this was a greate starting point for me to learn backend.
-
-Backend server design:
-
-i created struct that would consist of the fields and created jsontags that would save the incoming data from dio(using tojson function in the app).
-
-main():here i retrieved the environment variable from render that has "DATABASE_URL"
-
-IF THE environment variable was absent i atleast made a provision to let it connect to my postgre as a last option.
-
-i parsed that string,go returned a config with the fields that were broken down from the database url into the go readable struct consisting of password,database name etc.
-
-with the config,i created a connection with the database
-
-pinged the database to know if it is online or not.
-
-defer is the function that runs any function when its parent function is about to die.
-
-i made sure to close the connection between the database and the backend when the  whenever any error occured before going to the listenandserve function(not having defer dbpool.close() wouldnt matter in this case because there isnt any function that would abruptly close the backend after the pool has been opened so not having it there would not be of any problem.)
-
-checked if the incoming request for each path is in accordance with the one defined in backend if not it throws the error.
-
-it saves the incoming coordinates from frontend and inserts it into the database. r.context is there so that there exists atomic transaction of data.
-
-when retrieving data from database,i checked the deviceid retrieved from queryparameter from dio in backend,matched the tuple/row to it, the record can be multiple thats why i mapped them into the struct,created slice of tpe locationdata and sent it if it was a get data.
-
-
-since the device id is ultimately stored into the device itself and no server side validation is done,although its highly unlikely to match it since i am using uuid(universally unique identifiers v4),sophisticated users can breach into other people's data by changing their deviceid(uuid) to another person's uuid.
-
-you can find my throw away prototype which i created to learn about operating system and geolocator here:
-
-https://github.com/Abh-Unity/FlutterProjects/tree/main/gps
-
-
-
-
-
-
-
-
-
-
-
+You can find the throwaway prototype I created to learn about the operating system and Geolocator here:
+[gps prototype](https://github.com/Abh-Unity/FlutterProjects/tree/main/gps)
